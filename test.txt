@@ -1,0 +1,140 @@
+package WeatherData;
+
+import CityName.CityTolatitudeAndLongitude;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.nio.charset.Charset;
+
+import java.io.*;
+
+import java.net.URL;
+/**
+ * Created by scispl20 on 18-04-2017.
+ */
+public class WeatherByLatitudeAndLongtitude
+{
+    /**
+     * This method is used for reading the data from console
+     * and passing to the Web Service for reading the given city Weather,
+     * appends the url and returns the url
+     * @param city
+     * @return
+     */
+    public String[] readFromConsole(String city)
+    {
+        String latLongs[]=new String[2];
+        try
+        {
+            CityTolatitudeAndLongitude cityTolatitudeAndLongitude = new CityTolatitudeAndLongitude();
+            latLongs = cityTolatitudeAndLongitude.getLatLongPositions(city);
+            //System.out.println("Latitude: "+latLongs[0]+" and Longitude: "+latLongs[1]);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+/*
+            String newUrl = new String();
+            if (city == null) {
+                System.out.println("Please Enter a city Name....");
+                return null;
+            } else {
+                System.out.println("Entered city Name is :- " + city);
+                try {
+                    String url = ("http://theastrologer-api.herokuapp.com/api/horoscope/");
+                    newUrl = urlAppend(url, city);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return newUrl;
+            }
+*/
+    return latLongs;
+    }
+
+    /**
+     * This function is used to append the city and Date to the Web Service
+     * @param url
+     * @param city
+     * @return
+     */
+
+    public String urlAppend(String url, String[] latlong)
+    {
+        url=url+latlong[0]+","+latlong[1];
+        return url;
+    }
+
+    /**
+     * This method is used for reading the data from JSON String
+     * @param url
+     * @return
+     * @throws IOException
+     */
+
+    public static JSONObject readJsonFromUrl(String url) throws IOException,JSONException
+    {
+        InputStream is = new URL(url).openStream();
+        try
+        {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            String jsonText = readAll(rd);
+            JSONObject json = new JSONObject(jsonText);
+            return json;
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+
+    /**
+     * This function is called by readJsoonFromUrl()
+     * for iteration purpose to read data from JSONObject
+   //  * @param rd
+     * @return
+     * @throws IOException
+     */
+
+    private static String readAll(Reader rd) throws IOException
+    {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1)
+        {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
+    public void displayWeather(JSONObject json)
+    {
+
+    }
+
+
+    public static void main(String args[])throws JSONException,IOException
+    {
+        String url=("https://api.darksky.net/forecast/074ee73f05b944ecdaee3653f87d2cfd/");
+        WeatherByLatitudeAndLongtitude weatherByLatitudeAndLongtitude = new WeatherByLatitudeAndLongtitude();
+
+        String[] LatLongArray= weatherByLatitudeAndLongtitude.readFromConsole("pune");
+        System.out.println("Latitude: "+LatLongArray[0]+" and Longitude: "+LatLongArray[1]);
+
+        String newUrl=weatherByLatitudeAndLongtitude.urlAppend(url,LatLongArray);
+
+        JSONObject json = readJsonFromUrl(newUrl);
+        System.out.println(json.toString());
+       // weatherByLatitudeAndLongtitude.displayWeather(json);
+
+    }
+}
